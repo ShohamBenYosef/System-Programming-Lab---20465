@@ -11,7 +11,7 @@ label_list* create_list() {
 }
 
 
-void add_label_to_list(label_list* list, char label[], int ic)
+void add_label_to_list(label_list* list, char* label, int ic, int insOrData, int ext)
 {
     	label_node* new_label = (label_node*)malloc(sizeof(label_node));
     	if(!new_label)
@@ -19,12 +19,14 @@ void add_label_to_list(label_list* list, char label[], int ic)
 	
 	strcpy(new_label->label, label);
 	new_label->ic = ic;
+	new_label->instructionOrData = insOrData;
+	new_label->ext = ext;
 	new_label->next = NULL;
 	
-	if(list->head == NULL){
+	if(list->head == NULL)
         	list->head = new_label;
-        	printf("added at beginning\n");
-    	} else {
+
+    	else {
 		label_node* curr = list->head;
 		
 		while(1){
@@ -34,7 +36,6 @@ void add_label_to_list(label_list* list, char label[], int ic)
 			
 			else if(curr->next == NULL){
 				curr->next = new_label;
-				printf("add to end\n");
 				break;
 			}
 			
@@ -47,19 +48,18 @@ void add_label_to_list(label_list* list, char label[], int ic)
 
 void print_label(label_node* node)
 {
-    printf(" [ %s , %d ] ", node->label, node->ic);
+    printf(" [ %s , %d , %d , %d ] ", node->label, node->ic, node->instructionOrData , node->ext);
 }
 
 
 void print_label_table(label_list* list){
-    printf("head-->");
 	
 	label_node* p;
 	for (p = list->head; p != NULL; p = p->next) {
 		print_label(p);
-		printf(" --> ");
+		printf("\n");
 	}
-	printf(" |NULL|\n");
+	printf("\n");
 }
 
 

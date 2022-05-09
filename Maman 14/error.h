@@ -5,12 +5,12 @@
 /* 
 * List of common errors: 
 */
-#define ErrorMaxLengthLine "there is to many characters in this line."
+#define ErrorMaxLengthLine "there is too many characters in this line."
 #define ErrorMissingArgument "Missing argument."
 #define ErrorCantRead "Could not open file %s for reading."
 #define ErrorMemoryAlloc "Memory allocation failed."
 #define ErrorInAssemblyCode "There's error in the code - exit without create files."
-
+#define InvalidCommand "Invalid Command."
 
 
 /*
