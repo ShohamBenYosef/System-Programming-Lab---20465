@@ -21,10 +21,13 @@ macro_list* create_macro_list(){
 	 	fatal_error("MEMORY");
 }
 
-/* TODO !!!*/
+/* TODO !!!
 void free_macro_lists(){
 	int i = 0;
-}
+	for ( i = 0; i < StartNumOfMacros; i++){
+		free(lists[i].name);
+	}
+}*/
 
 void generate_macro_lists()
 {
@@ -59,10 +62,10 @@ void add_to_list(macro_list* list, macro_line* node) /*TODO conect 2 func of add
 
 void print_macro(char* m_word){
 	int i = 0;
-	printf("print_macro\n");
+
 	for (i=0; i < StartNumOfMacros; i++) {
 		if (strcmp(m_word, lists[i]->name) == 0) {
-			printf("**********\n");
+
 			macro_line* p = lists[i]->head;
 			while (p != NULL) {
 
@@ -78,10 +81,9 @@ void print_macro(char* m_word){
 }
 
 int check_word(char* new_name){
-	printf("5\n");
 	int i;
 	for (i = 0; i < StartNumOfMacros; i++) {
-		printf("$ lists[i]->name : %s -- %s\n", lists[i]->name, new_name);
+
 		if (strcmp(new_name, lists[i]->name) == 0) {
 			return 1;
 		}
@@ -97,13 +99,13 @@ void get_macro_lines(macro_list* list , FILE* fp)
 	int curr;
 	char* first_word = (char*)malloc(sizeof(char)* LINE_LEN);
 	if (first_word) {
-		printf("in get_macro lines\n");
+
 		while (fgets(line, LINE_LEN, fp)) {
 			curr = 0;
 			get_next_word(line, first_word, &curr);
 			if (strcmp(first_word, "endmacro")) /* not endmacro */
 			{
-				printf("%s\n", line);
+				/*printf("%s\n", line);*/
 				macro_line* node = (macro_line*)malloc(sizeof(macro_line));
 				if(node) {
 					strcpy(node->l, line);
@@ -147,18 +149,14 @@ void pre_assembler()
 		if (fp && parser_data.file) {
 			/* read line by line */
 			while (fgets(line, LINE_LEN, fp)) {
-				printf("1\n%s\n", line);
+				/*printf("1\n%s\n", line);*/
 				curr = 0;
 				get_next_word(line, first_word, &curr);
 				/* check if the first name is "macro" */
 				if(strcmp("macro", first_word) == 0)
 				{
-					/*TODO add to table */
-					printf("2\n");
 					get_next_word(line, name, &curr);
 					strcpy(lists[++m_index]->name, name);
-					printf("%s\n", lists[m_index]->name); /*Del*/
-					printf("2*\n");
 					get_macro_lines(lists[m_index], fp); /* add macro lines to list */
 				}
 				/* check if its macro name, if it is so print it to file. */
@@ -171,11 +169,6 @@ void pre_assembler()
 					
 			}
 			fseek(fp, 0, SEEK_SET);
-			/*DEBUGGGGG*/
-			int i;
-			/*for(i=0; i < StartNumOfMacros; i++){
-				printf("%s\n", lists[i]->name);
-			}*/
 		}
 		else
 			fatal_error("CANT OPEN FILE");
@@ -183,5 +176,6 @@ void pre_assembler()
 	}
 	free(first_word);
 	free(name);
+	fclose(parser_data.file);
 }
 

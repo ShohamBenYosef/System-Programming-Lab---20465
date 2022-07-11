@@ -20,8 +20,4 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-/* TODO - build new file for all files function.  
-*  	  preAssembler, get name with as/ps etc, 
-*	  move parse process to 'parse' file, sec move of algo will be in 'command' file
-*/
 

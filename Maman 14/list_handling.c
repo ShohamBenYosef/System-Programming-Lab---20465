@@ -11,7 +11,7 @@ label_list* create_list() {
 }
 
 
-void add_label_to_list(label_list* list, char* label, int ic, int insOrData, int ext)
+void add_label_to_list(label_list* list, char* label, int ic, int insOrData, int ext, char* data)
 {
     	label_node* new_label = (label_node*)malloc(sizeof(label_node));
     	if(!new_label)
@@ -22,6 +22,8 @@ void add_label_to_list(label_list* list, char* label, int ic, int insOrData, int
 	new_label->instructionOrData = insOrData;
 	new_label->ext = ext;
 	new_label->next = NULL;
+	if (data != NULL)
+		strcpy(new_label->data_label, data);
 	
 	if(list->head == NULL)
         	list->head = new_label;

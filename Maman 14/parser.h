@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "list_handling.h"
 #define LINE_LEN 81
+#define NUM_OF_COMMANDS 16
 
 typedef enum { immediateOperand, SymbolOperand, RealativeOperand, RegisterOperand} operandType;
 
@@ -56,13 +57,13 @@ void parse_line(char* line);
 /*
 * count dc and ic for label line with .data or .string.
 */
-void parse_instruction(char* line, char* command_name,int* ptr_curr);
+void parse_instruction(char* , char* ,int* );
 
 /*
 * count ic and check valid command and operands.
 */
-void parse_data(char* line, char* sec_word,int *ptr_curr);
-int parse_operands(char* line, char* command, int* ptr_curr);
+void parse_data(char* , char* , char* ,int* );
+int parse_operands(char* line, int i, int* ptr_curr);
 void call_func_to_11(char* line, int l_cnt);
 void setParserData();
 void freeParserData();

@@ -91,73 +91,56 @@ void call_func_to_11(char* line, int l_cnt)
 	
 }
 
-
-
-void parse_line(char* line)
+void parse_line( char* line)
 {
 	int curr = 0;
-	
 	char* first_word = (char*)malloc(sizeof(char)* LINE_LEN);
 	char* sec_word = (char*)malloc(sizeof(char)* LINE_LEN);
-	
+
 	if(!first_word || !sec_word)
 		fatal_error(ErrorMemoryAlloc);
-	
-	
+	printf("ic = %d\n", parser_data.IC);
 	puts(line); /*Debag*/
 	
-	/* not comment line */
-	if(line[curr] != '\n' && line[curr] != ";")
+	if (line[curr] != '\n' && line[curr] != ";") /* check comment line */
 	{
 		parser_data.line_number++;
 		get_next_word(line, first_word, &curr);
-		
-		/* check if there's a label */
-		if(first_word[strlen(first_word)-1] == ':')
-		{	
-			label_flag = 1; /*4*/
-			
+		/* check if lebel */
+		if (first_word[strlen(first_word)-1] == ':')
+		{
+			printf("**\n");
+			label_flag = 1;
 			first_word[strlen(first_word)-1] = '\0';
-
-			/* TODO - another func to handle lable. */
 			
-			get_next_word(line, sec_word ,&curr);
-			if(sec_word[0] == '.') { /*5*/
-				add_label_to_list(parser_data.Shead, first_word, parser_data.IC++, dataLine, 0);
-				parse_data(line, sec_word ,&curr);
+			get_next_word(line, sec_word, &curr);
+			if (sec_word[0] == '.') /*check if data line data ,struct, string*/
+			{
+				parse_data(line, first_word, sec_word ,&curr); /*TODO - check if string, extern ect..*/
 			}
-			else {
-				/* calc before adding the label into the symbol table.*/
-				add_label_to_list(parser_data.Shead, first_word, parser_data.IC++, InstructionLine, 0);
+			else
+			{
+				add_label_to_list(parser_data.Shead, first_word, parser_data.IC, InstructionLine, 0, NULL);
 				parse_instruction(line, sec_word,&curr);
 			}
-		
-		} else if(line[0] == '.'){/*8*/
-			if(strcmp(first_word, ".extern") == 0) 
-			{ /*9*/
-				printf("in extern\n");
-				/* add all label in ext line. for now its only 1 label per extern command.
-				while(curr < LINE_LEN){
-					get_next_word(line, sec_word ,&curr);
-					if(sec_word != NULL)
-						add_label_to_list(symbols, first_word, 0, 0, 1);
-				// its have problem becouse its try to add blank label to list.
-			*/}
-			get_next_word(line, sec_word ,&curr);
-			add_label_to_list(parser_data.Shead, sec_word, 0, 0, 1);
-		} else {
-			/* TODO - else if to another word  - no command.. */
+		}
+		else if (first_word[0] == '.') /* extern / entry line */
+		{
+			/*parse_data(line, first_word, NULL ,&curr);*/
+		}
+		else /* instruction line. */
+		{
 			parse_instruction(line, first_word, &curr);
 		}
 		
 		/* free memory */
 		free(sec_word);
 		free(first_word);
-	}
+	}/* comment line condition */
 }
 
 
-void parse_data(char* line, char* sec_word, int *ptr_curr)
+void parse_data(char* line, char* first_word, char* sec_word, int *ptr_curr)
 {
 	int curr = *ptr_curr, count = 0,i;
 	char* data = (char*)malloc(sizeof(char)* LINE_LEN);
@@ -165,11 +148,13 @@ void parse_data(char* line, char* sec_word, int *ptr_curr)
 		fatal_error(ErrorMemoryAlloc);
 		
 	get_next_word(line, data, &curr);
+	add_label_to_list(parser_data.Shead, first_word, parser_data.IC, dataLine, 0, data);
+	
 	for(i = 0; i < strlen(data); i++) {
 		if(isalnum(data[i]) || data[i] == '.' || data[i] == '-') /* for the-" */
 			count++;
 	}
-	
+
 	parser_data.IC += count;
 	parser_data.DC += count;
 	*ptr_curr = curr;
@@ -181,19 +166,20 @@ void parse_instruction(char* line, char* command_name,int* ptr_curr)
 {
 	int curr = *ptr_curr, i,j;
 	
-	for(i = 0; i < 16; i++) /*define 16!!*/
+	for(i = 0; i < NUM_OF_COMMANDS ; i++)
 	{
 		if(!strcmp(command_name, cmds[i].name)) {
 			break;
 		}
 	}
+	
 	if(i == 16) {
 		error_log(InvalidCommand, parser_data.line_number);
 		return;
 	} else {
 		for(j = 0; j < cmds[i].numOfOperands; j++) {
-			/*int op_kind = parse_operands(line, cmds[i].name , &curr);   TODO  -- saterday  */
 			
+			/*parse_operands(line, cmds[i].name , &curr);*/
 		}
 		parser_data.IC += (cmds[i].numOfOperands+1);
 	}
@@ -201,11 +187,27 @@ void parse_instruction(char* line, char* command_name,int* ptr_curr)
 }
 
 
+int parse_operands(char* line, int i, int* ptr_curr) 
+{
+	int curr = *ptr_curr;
+	char op[cmds[i].numOfOperands][LINE_LEN];
+	int L = (cmds[i].numOfOperands+1);
+	
+	if (cmds[i].numOfOperands > 0)
+	{
+		char* p = strchr(line, '.');
+		if (p != NULL)
+			L++;
+	}
+	printf("* L=%d\n", L);
+	parser_data.IC += L;
+}
+
 
 
 void setParserData(){
 	parser_data.DC = 0;
-    	parser_data.IC = 99;
+    	parser_data.IC = 100;
     	parser_data.line_number = 0;
     	parser_data.file = NULL;
     	parser_data.err_count = 0;
@@ -215,7 +217,7 @@ void setParserData(){
 void freeParserData()
 {
 	parser_data.DC = 0;
-	parser_data.IC = 99;
+	parser_data.IC = 100;
 	parser_data.line_number = 0;
 	parser_data.file = NULL;
 	parser_data.err_count = 0;

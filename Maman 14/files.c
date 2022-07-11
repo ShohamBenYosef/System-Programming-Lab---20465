@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "files.h"
 #include "error.h"
 #include "parser.h"
@@ -44,7 +43,7 @@ char* get_full_file_name(const char* file_name, char* ending)
 	strcat(file_name_base,ending);
     
     	file_name_base[strlen(file_name_base)] ='\0';
-	
+	puts(file_name_base);
 	return file_name_base;
 }
 
@@ -56,18 +55,14 @@ char* get_full_file_name(const char* file_name, char* ending)
 void handle_file(const char* file_name, char* mode)
 {
 	char line[LINE_LEN];
-	setParserData();  /* set to default. */
+	setParserData();  /* set to default every iteration of the main loop */
 	
 	parser_data.nameOfFile = (char*)malloc(sizeof(char)*strlen(file_name)+1);
 	if(!parser_data.nameOfFile)
 		fatal_error(ErrorMemoryAlloc);
 
 	strcpy(parser_data.nameOfFile, file_name);
-	printf("%s\n", parser_data.nameOfFile);
 	pre_assembler();
-	/*Debug*/
-	printf("END");
-	exit(0);
 	
 	printf("after pre_asm--> %s\n",parser_data.nameOfFile);/**/
 	parser_data.file = open_file(parser_data.nameOfFile, AfterMacroEnding ,ReadFile);
@@ -80,13 +75,12 @@ void handle_file(const char* file_name, char* mode)
 	
 	printf("End of first round of the asm.\n\n");
 	print_label_table(parser_data.Shead);
-	fseek(parser_data.file, 0, SEEK_SET);
-	/*part 2 of first move.
+	fseek(parser_data.file, 0, SEEK_SET); /* set pointer to the start of file. */
+	/*part 2 of first move.*/
+	
 	while(fgets(line, LINE_LEN,parser_data.file)){
-		puts(line);
-
-		call_func_to_11(line, 0);TODO - change name
-	}*/
+		call_func_to_11(line, 0);/*TODO - change name*/
+	}
 	
 	
 	fclose(parser_data.file);

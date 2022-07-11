@@ -11,6 +11,7 @@ typedef struct Node {
 	int ic; /* address of the symbol */
 	int instructionOrData; /* 1 for instruction, 0 for data */
 	int ext; /*flag to extern labels */
+	char data_label[81]; /*hold the nums or letters.*/
 	struct Node* next;
 } label_node;
 
@@ -31,7 +32,7 @@ label_list* create_list();
 * build new label node and fill it with data, 
 */
 void add_label_to_list(label_list* list, char label[], int ic, int 
-instructionOrData, int ext);
+instructionOrData, int ext, char *);
 
 /*
 * print the node in format.
