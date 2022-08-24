@@ -7,7 +7,7 @@
 */
 #define ErrorMaxLengthLine "there is too many characters in this line."
 #define ErrorMissingArgument "Missing argument."
-#define ErrorCantRead "Could not open file %s for reading."
+#define ErrorCantRead "Could not open file for reading."
 #define ErrorMemoryAlloc "Memory allocation failed."
 #define ErrorInAssemblyCode "There's error in the code - exit without create files."
 #define InvalidCommand "Invalid Command."
@@ -18,9 +18,5 @@
 */
 void fatal_error(const char* message);
 
-/*
-* Prints an error message and adds 1 to the error counter
-*/
-void error_log(char* msg, int line);
 
 #endif

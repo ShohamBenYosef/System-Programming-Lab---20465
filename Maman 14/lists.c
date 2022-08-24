@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include "lists.h"
 #include "error.h"
-
-
+#include "parser.h"
 
 label_list* create_label_list() {
     label_list* list = (label_list*)malloc(sizeof(label_list));
@@ -141,6 +140,7 @@ void deleteListData(LineData_list* list)
 		p = list->head;
 	}	
 }
+/****************************************************/
 
 /*********************************************************/
 

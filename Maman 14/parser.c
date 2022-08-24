@@ -86,18 +86,18 @@ void get_next_word(char* line, char* word, int* ptr_curr){
 /************************************************************************************/
 
 
-void call_func_to_11(char* line, int l_cnt)
+void sec_pas(char* line, int l_cnt)
 {
     int curr = 0, tmp;
 	char* first_word = (char*)malloc(sizeof(char)* LINE_LEN);  /* hold the first word in line */
 	char* sec_word = (char*)malloc(sizeof(char)* LINE_LEN);  /* hold the second word in line */
 	if(!first_word || !sec_word)
 		fatal_error(ErrorMemoryAlloc);
-	printf(" this is call func 11\n");
+	
 	if (line[curr] != '\n' && line[curr] != ";"){
 	    get_next_word(line, first_word, &curr);
-	    printf("1\n");
-	    /*if(first_word[0] == '.')
+	    
+	    if(first_word[0] == '.')
 	    {
 	        if(strcmp(first_word, ".extern") == 0)
 	        {
@@ -108,7 +108,7 @@ void call_func_to_11(char* line, int l_cnt)
 	            printf("");
 	        }
 	    }
-	    else */if (first_word[strlen(first_word) - 1] == ':')
+	    else if (first_word[strlen(first_word) - 1] == ':')
 	    {
 	        get_next_word(line, sec_word, &curr);
 	        /*call to func that handle labels in line and add it to data list.*/
@@ -153,9 +153,8 @@ find_labels(char* line, char* word, int * ptr)
     
 	free(next_word);
 }
+/*************************************************************************/
 
-
-/*********************************************************/
 void parse_line( char* line)
 {
 	int label_flag = 0, curr = 0, tmp;
@@ -215,7 +214,8 @@ parse_extern(char* line, int* ptr){
     char* s = (char*)malloc(sizeof(char)*32);
     while (s){
         get_next_word(line, s, &curr);
-        add_label_to_list(parser_data.Shead,s, parser_data.ext_flag++, EXTERN);
+        add_label_to_list(parser_data.Shead,s, ++parser_data.ext_flag, EXTERN);
+        
         if(check_comma(line, &curr)){
             jump_comma(line, &curr);
         }

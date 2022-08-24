@@ -6,6 +6,7 @@
 #define LINE_LEN 81
 #define NUM_OF_COMMANDS 16
 
+
 typedef enum { immediateOperand, SymbolOperand, RealativeOperand, RegisterOperand} operandType;
 
 enum { dataLine, InstructionLine };
@@ -25,8 +26,6 @@ typedef struct {
 } ParserData;
 
 ParserData parser_data;
-
-
 
 
 
@@ -55,7 +54,7 @@ void parse_data(char* line, char* sec, int *ptr);
 
 
 void parse_line( char* line);
-void call_func_to_11(char* line, int l_cnt);
+void sec_pas(char* line, int l_cnt);
 void get_next_word(char* line, char* word, int* ptr_curr);
 void jump_comma(char* line, int *ptr_curr);
 int check_comma(char* line, int *ptr_curr);

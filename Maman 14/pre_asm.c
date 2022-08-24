@@ -7,7 +7,7 @@
 #include "pre_asm.h"
 
 
-
+/* create single macro list */
 macro_list* create_macro_list(){
 	 macro_list* list = (macro_list*) malloc (sizeof(macro_list));
 	 
@@ -18,16 +18,20 @@ macro_list* create_macro_list(){
 	 		return list;
 	 	free(list->name);
 	 } else
-	 	fatal_error("MEMORY");
+	 	fatal_error(ErrorMemoryAlloc);
 }
-
-/* TODO !!!
+/* free single macro */
+void free_macro(macro_list* m){
+	free(m->name);
+}
+/* free all the macros in the list */
 void free_macro_lists(){
 	int i = 0;
 	for ( i = 0; i < StartNumOfMacros; i++){
-		free(lists[i].name);
+		free_macro(lists[i]);
 	}
-}*/
+}
+
 
 void generate_macro_lists()
 {
@@ -62,7 +66,6 @@ void add_to_macro_list(macro_list* list, macro_line* node) /*TODO conect 2 func 
 
 void print_macro(char* m_word){
 	int i = 0;
-
 	for (i=0; i < StartNumOfMacros; i++) {
 		if (strcmp(m_word, lists[i]->name) == 0) {
 
@@ -72,7 +75,6 @@ void print_macro(char* m_word){
 				fputs(p->l, parser_data.file);
 				p = p->next;
 			}
-			
 		}
 		else
 			i += 1;
@@ -121,7 +123,7 @@ void get_macro_lines(macro_list* list , FILE* fp)
 	}
 	else {
 		free(first_word);
-		fatal_error("MEMORY");
+		fatal_error(ErrorMemoryAlloc);
 	}
 	
 } 
@@ -144,7 +146,7 @@ void pre_assembler()
 		/* open original file. */
 		FILE* fp = open_file(parser_data.nameOfFile, MainFileEnding ,ReadFile);
 		/* open new file to write in. */
-		parser_data.file = open_file(parser_data.nameOfFile, AfterMacroEnding ,WirtingToFile);
+		parser_data.file = open_file(parser_data.nameOfFile, AfterMacroEnding ,WirtingFile);
 		
 		if (fp && parser_data.file) {
 			/* read line by line */
@@ -162,16 +164,16 @@ void pre_assembler()
 				/* check if its macro name, if it is so print it to file. */
 				else if (check_word(first_word)) {
 					print_macro(first_word);/*print any line of the macro */
-					
 				}
 				else
 					fputs(line, parser_data.file);
 					
 			}
+			/* Return to the beginning of the file */
 			fseek(fp, 0, SEEK_SET);
 		}
 		else
-			fatal_error("CANT OPEN FILE");
+			fatal_error(ErrorCantRead);
 		fclose(fp);
 	}
 	free(first_word);
