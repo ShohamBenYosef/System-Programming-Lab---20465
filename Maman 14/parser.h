@@ -3,38 +3,44 @@
 
 #include <stdlib.h>
 #include "lists.h"
+
+
 #define LINE_LEN 81
 #define NUM_OF_COMMANDS 16
+
 
 
 typedef enum { immediateOperand, SymbolOperand, RealativeOperand, RegisterOperand} operandType;
 
 enum { dataLine, InstructionLine };
 
+
 typedef struct {
-	label_list* Shead; /* Head of symbol table */
-	LineData_list* Dhead; /* Head of data table */
-	int err_count;	/**/
-	char* nameOfFile; /**/
-	FILE* file;
+	label_list* Shead;	/* Head of symbol table. */
+	LineData_list* Dhead;	/* Head of data table. */
+	int err_count;		/* count the error in asembly file. */
+	char* nameOfFile; 	/* name of file that we handle now. */
+	FILE* file;		/* ptr to current file. */
+	
 	/* Command and data counters. */
-	int ent_flag;
-	int ext_flag;
-	int line_num;
-	unsigned int IC;
-	unsigned int DC;
+	int ent_flag;		/* save if there is entry label in the asm file */
+	int ext_flag;		/* save if there is extern label in the asm file */
+	int line_num;		/* current line number*/
+	unsigned int IC;	/* Instruction count */
+	unsigned int DC;	/* Data count */
 } ParserData;
 
-ParserData parser_data;
+
+ParserData parser_data; /* var */
 
 
-
+/* func for operands */
 int is_register(char* op);
 int is_direct(char* op);
 int is_labelA(char* op);
 int is_imidiate (char* op);
 
-
+/* func for start and end asm on file */
 void setParserData();
 void freeParserData();
 

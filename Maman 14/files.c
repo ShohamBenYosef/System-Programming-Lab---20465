@@ -10,8 +10,7 @@
 
 #define EXTERN 4
 #define ENTRY 5
-
-
+#define NO_ERRORS 0
 
 
 /* open file and return ptr */
@@ -19,7 +18,7 @@ FILE* open_file(const char* file_name, char* ending, char* mode)
 {
 	FILE* file_p;
 	char* full_file_name;
-	
+	/* get the full name including the end. */
 	full_file_name = get_full_file_name(file_name, ending);
 	
 	file_p = fopen(full_file_name, mode);
@@ -87,10 +86,9 @@ void handle_file(const char* file_name, char* mode)
 	while(fgets(line, LINE_LEN,parser_data.file)){
 		sec_pas(line, 0);
 	}
-	
-	print_debbug_data(parser_data.Dhead); /* TODO - delete */
+	print_debbug_data(parser_data.Dhead);/**/
 	handle_output_file(); 
-	
+	/*freeParserData();*/
 	fclose(parser_data.file);
 }
 
@@ -100,15 +98,14 @@ void handle_file(const char* file_name, char* mode)
 /* open the correct files and print that (in 32base) */
 void handle_output_file(){
 	/* extern file */
-	if(parser_data.ext_flag > 0){
+	if(parser_data.ext_flag > NO_ERRORS){
 		print_ext_file(parser_data.Shead, ExternFileEnding, EXTERN);
 	}
 	/* entry file */
-	if (parser_data.ent_flag > 0){
+	if (parser_data.ent_flag > NO_ERRORS){
 		print_ext_file(parser_data.Shead, EntryFileEnding, ENTRY);
 	}
 	/* object file */
-	print_data_to_file(parser_data.nameOfFile, ObjectFileEnding);
+	print_data_to_ob_file(parser_data.Dhead, ObjectFileEnding);
 	
 }
-

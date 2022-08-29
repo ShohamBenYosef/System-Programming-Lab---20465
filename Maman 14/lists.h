@@ -26,15 +26,15 @@ typedef struct List {
 
 
 typedef struct {
-	int opcode :4;
-	int target :2;
-	int source :2;
-	int ARE :2;
+	unsigned int opcode :4;
+	unsigned int target :2;
+	unsigned int source :2;
+	unsigned int ARE :2;
 } MachineCodeBits;
 
 typedef union {
 	MachineCodeBits bits;	/* for instruction */
-	int word :10;		/* otherwise */
+	unsigned int word :10;		/* otherwise */
 } MachineCodeWord;
 
 

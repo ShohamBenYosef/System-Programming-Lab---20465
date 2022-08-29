@@ -90,9 +90,9 @@ void print_label(label_node* node)
 void print_data_node(LineData* node)
 {
 	if(node->type == BITS)
-    		printf(" { %d , %d ,%d ,%d ,%d } ", node->address, node->mc.bits.opcode, node->mc.bits.source, node->mc.bits.target, node->mc.bits.ARE);
+    		printf(" { add=%d , op=%d ,sou=%d ,tar=%d ,are=%d ,type=%d, for=%d } ", node->address, node->mc.bits.opcode, node->mc.bits.source, node->mc.bits.target, node->mc.bits.ARE, node->type, node->forSec);
     	else
-    		printf(" { %d , %d } ", node->address, node->mc.word);
+    		printf(" {  add=%d , word=%d,type=%d, for=%d} ", node->address, node->mc.word, node->type, node->forSec);
 }
 
 void print_debbug_data(LineData_list* list)
@@ -133,10 +133,13 @@ void deleteList(label_list* list)
 
 void deleteListData(LineData_list* list)
 {
+	printf("1\n");
+	int i = 0;
 	LineData* p = list->head;
 	while (list->head != NULL) {
 		list->head = list->head->next;
 		free(p);
+		printf("%d\n", i++);
 		p = list->head;
 	}	
 }
@@ -147,29 +150,44 @@ void deleteListData(LineData_list* list)
 /* fill the next label in data-list with his address. */
 void refill_data_node(LineData_list* list, int val)
 {
+	printf("refill_data_node\n");
     LineData* p = list->head;
     
     while(p){
         if(p->forSec == 1){
+        	printf("p->address = %d\n", p->address);
             MachineCodeWord _mc;
             _mc.word = val;
             p->mc = _mc;
             p->forSec = 0;
+            break;
         }
         p = p->next;
     };
 }
-/* search if word is label  - move to list.c */
+/* search if word is label - move to list.c */
 check_label(label_list* list, char* word)
 {
     label_node* p = list->head;
-    /*
-    TODO - add check '.' in word and handle it. 
-    */
+    char *token = (char*)malloc(sizeof(char)*81);
+    char ch = ':';
+    if(!token)
+    	fatal_error(ErrorMemoryAlloc);
+    printf("in check label\n");
+  	if(strchr(word, '.') != NULL) {
+   		token = strtok(word, ".");
+  	}
+  	else{
+  		printf("123 + %s\n",word);
+  		strcpy(token, word);
+	}
+  	strncat(token, &ch, 1);
+  	
+  	puts(token);
     while(p){
-        if(!strcmp(word, p->label)){
-            puts(word);
-            return p->address;
+        if(!strcmp(token, p->label)){
+              	puts(token);
+              	return p->address;
         }
         p = p->next;
     };

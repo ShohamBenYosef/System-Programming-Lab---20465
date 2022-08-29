@@ -5,6 +5,7 @@
 #include "parser.h"
 
 #define LINE_LEN 81
+#define AdditionalChars 4
 
 #define MainFileEnding ".as"
 #define AfterMacroEnding ".am"
@@ -27,3 +28,6 @@ void handle_output_file();
 
 
 #endif
+
+
+

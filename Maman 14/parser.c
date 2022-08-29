@@ -37,18 +37,16 @@ char registers[8][2] = {"r0","r1","r2","r3","r4","r5","r6","r7"};
 
 
 
-
-void forward(char* line ,int *ptr_curr)
-{
+/* move pointer to the beggining of the next word (not blanc char) */
+void forward(char* line ,int *ptr_curr) {
 	int curr = *ptr_curr;
     while( isspace(line[curr]) && line[curr] != '\n')
 		   curr++;
 	*ptr_curr = curr;
 }
 
-
-int check_comma(char* line, int *ptr_curr)
-{
+/* return 1 if theres a comma in the next blanc chars. */
+int check_comma(char* line, int *ptr_curr) {
     int curr = *ptr_curr, comma = 0;;
     forward(line, &curr);
     
@@ -57,9 +55,8 @@ int check_comma(char* line, int *ptr_curr)
     return comma;
 }
 
-
-void jump_comma(char* line, int *ptr_curr)
-{
+/* move pointer over comma (usaliy came after 'check_comma' function */
+void jump_comma(char* line, int *ptr_curr) {
     	int curr = *ptr_curr;
     	forward(line, &curr);
 	if(line[curr] == ',')
@@ -69,15 +66,14 @@ void jump_comma(char* line, int *ptr_curr)
 	*ptr_curr = curr;
 }
 
-
-void get_next_word(char* line, char* word, int* ptr_curr){
-	
+/* extract the whole next word from the line. */
+void get_next_word(char* line, char* word, int* ptr_curr) {
 	int curr = *ptr_curr, j;	
     	forward(line, &curr);
 
 	for(j = 0; !isspace(line[curr]) && line[curr] != '\n' && line[curr] != ','; curr++)
 		word[j++] = line[curr];
-	word[j] = '\0';
+	word[j] = '\0'; /* set end to null */
 
 	forward(line, &curr);
 	*ptr_curr = curr; 
@@ -85,7 +81,7 @@ void get_next_word(char* line, char* word, int* ptr_curr){
 
 /************************************************************************************/
 
-
+/* sec pas of asm algorithm, fill the data list with correct addresses of the labels and handle ext and ent. */
 void sec_pas(char* line, int l_cnt)
 {
     int curr = 0, tmp;
@@ -94,21 +90,18 @@ void sec_pas(char* line, int l_cnt)
 	if(!first_word || !sec_word)
 		fatal_error(ErrorMemoryAlloc);
 	
-	if (line[curr] != '\n' && line[curr] != ";"){
+	if (line[curr] != '\n' && line[curr] != ";") { /* not blanc line */
 	    get_next_word(line, first_word, &curr);
-	    
-	    if(first_word[0] == '.')
+	    if(first_word[0] == '.') /* if line start with dot ('.') */
 	    {
-	        if(strcmp(first_word, ".extern") == 0)
-	        {
+	        if(strcmp(first_word, ".extern") == 0) {
 	            printf("");
 	        }
-	        else if(strcmp(first_word, ".entry") == 0)
-	        {
+	        else if(strcmp(first_word, ".entry") == 0) {
 	            printf("");
 	        }
 	    }
-	    else if (first_word[strlen(first_word) - 1] == ':')
+	    else if (first_word[strlen(first_word) - 1] == ':') /*line start with label */ 
 	    {
 	        get_next_word(line, sec_word, &curr);
 	        /*call to func that handle labels in line and add it to data list.*/
@@ -116,16 +109,17 @@ void sec_pas(char* line, int l_cnt)
 	        	find_labels(line, sec_word, &curr);
 	    }
 	    else
-        	find_labels(line, first_word, &curr);
+        	find_labels(line, first_word, &curr); /*search address of label*/
 	}
 	free(sec_word);
 	free(first_word);
 	
 }
 
-
+/* search address of label and set it in data node. */
 find_labels(char* line, char* word, int * ptr)
 {
+	printf("in find labels\n");
     int curr = *ptr, i, val_of_label;
     char* next_word = (char*)malloc(sizeof(char)* LINE_LEN);
 	if(!next_word)
@@ -136,15 +130,20 @@ find_labels(char* line, char* word, int * ptr)
             if (strcmp(word ,cmds[i].name) == 0)
                 break;
     if (i == 16)
-        fatal_error("UndefinedCommand");
-            
+        fatal_error(InvalidCommand);
+    
     if(cmds[i].numOfOperands > 0){
         get_next_word(line, word, &curr);
-        val_of_label = check_label(parser_data.Shead, next_word);
-        if(val_of_label)
-            refill_data_node(parser_data.Dhead, val_of_label);
+        val_of_label = check_label(parser_data.Shead, word);
         
+        if(val_of_label){
+        	printf("if val\n");
+            refill_data_node(parser_data.Dhead, val_of_label);
+        }
+        /* if command have more operands - dont check errors because its sec pas.*/
         if(cmds[i].numOfOperands > 1)
+        	printf("*1*\n");
+        	jump_comma(line, &curr);
             get_next_word(line, next_word, &curr);
             val_of_label = check_label(parser_data.Shead, next_word);
             if(val_of_label)
@@ -208,14 +207,14 @@ void parse_line( char* line)
 }
 
 /*************Extern**and**Entry***********************/
-
+/* add extern label to label list */
 parse_extern(char* line, int* ptr){
     int curr = *ptr;
     char* s = (char*)malloc(sizeof(char)*32);
     while (s){
         get_next_word(line, s, &curr);
         add_label_to_list(parser_data.Shead,s, ++parser_data.ext_flag, EXTERN);
-        
+        /* every label should saperate with comma */
         if(check_comma(line, &curr)){
             jump_comma(line, &curr);
         }
@@ -243,7 +242,11 @@ void parse_data(char* line, char* sec, int *ptr)
         else {
             handle_data(line, str, &curr);
         }
+        free(str);
     }
+    else
+    	fatal_error(ErrorMemoryAlloc);
+    	
 }
 
 void handle_struct(char* line, char* str,  int *ptr)
@@ -265,6 +268,8 @@ void handle_struct(char* line, char* str,  int *ptr)
 			break;
 	    }
 	}
+	else
+		fatal_error(ErrorMemoryAlloc);
 }
 
 void handle_data(char* line, char* str,  int *ptr)
@@ -274,7 +279,7 @@ void handle_data(char* line, char* str,  int *ptr)
 	{
 		MachineCodeWord _mc;
 		_mc.word = get_next_num(line, &curr);
-		add_data_to_list(parser_data.Dhead, ++(parser_data.IC), _mc, WORD, 0);
+		add_data_to_list(parser_data.Dhead, ++(parser_data.IC), _mc, 1, 0);
 		parser_data.DC++;
 		if(!check_comma(line, &curr))
 			break;
@@ -284,7 +289,7 @@ void handle_data(char* line, char* str,  int *ptr)
 	
 }
 
-
+/*extract next number from line. */
 int get_next_num(char* line, int* ptr_curr){
     	int curr = *ptr_curr, j;
         char num[LINE_LEN];
@@ -293,17 +298,18 @@ int get_next_num(char* line, int* ptr_curr){
 			    num[j] = line[curr];
 			    j++;
 			}
-		num[j] = '\0';
+		num[j] = '\0'; /* set null in the end */
     	forward(line, &curr);
     	*ptr_curr = curr;
         return atoi(num);
 }
-
+/* extract string from line and add every char to data list as WORD. */
 void handle_string(char* line, char* str, int *ptr)
 {
     int i = 0;
     while(str[i])
     {
+    	/* run on every char */
         if(isalnum(str[i])){
             parser_data.DC++;
             MachineCodeWord _mc;
@@ -315,6 +321,8 @@ void handle_string(char* line, char* str, int *ptr)
 }
 
 /******************************************************/
+
+
 handle_instruction(char* line,char* command, int* ptr)
 {
     int curr = *ptr;
@@ -356,7 +364,7 @@ operand_handle(char* line, int* ptr, int num_of_op)
                 mc.word = (i<<2); /* move bits 2 digits to the left and add 0's */
             else
                 mc.word = (i<<5);
-            add_data_to_list(parser_data.Dhead, parser_data.IC, mc, WORD, 0);
+            add_data_to_list(parser_data.Dhead, parser_data.IC, mc, 0, 0);
         }
         else if(is_imidiate(op)){
             for (i =0; op[i+1]; i++)
@@ -364,13 +372,13 @@ operand_handle(char* line, int* ptr, int num_of_op)
             op[i] = '\0';
             
             mc.word = (atoi(op) * 4); /* move bits 2 digits to the left and add 0's */
-            add_data_to_list(parser_data.Dhead, parser_data.IC, mc, WORD, 0);
+            add_data_to_list(parser_data.Dhead, parser_data.IC, mc, 1, 0);
         }
         else{
-            add_data_to_list(parser_data.Dhead, parser_data.IC, mc, WORD, 1);
+            add_data_to_list(parser_data.Dhead, parser_data.IC, mc, 1, 1);
         }
     } else
-        fatal_error("Memmo");
+        fatal_error(ErrorMemoryAlloc);
     *ptr = curr;
 }
 
@@ -385,7 +393,7 @@ int parse_command(char* line,char* command, int* ptr)
                 break;
 
         if (command_num == 16)
-            fatal_error("UndefinedCommand");
+            fatal_error(InvalidCommand);
             
         else
         {
@@ -409,16 +417,16 @@ int parse_command(char* line,char* command, int* ptr)
             }
             parser_data.IC++;
             /*if (_mc.bits.target)*/
-            	add_data_to_list(parser_data.Dhead, parser_data.IC, _mc, BITS, shouldReturn);
+            	add_data_to_list(parser_data.Dhead, parser_data.IC, _mc, 0, shouldReturn);
             *ptr = curr;
             return command_num;
         }
     }
     else
-        fatal_error("there is no command");
+        fatal_error(InvalidCommand);
 }
 
-
+/*TODO - check with yair. */
 int parse_direct(){
     
 }
@@ -492,6 +500,8 @@ int is_register(char* op){
 
 
 /***********Start**Func**********/
+
+/*set parser_data struct */
 void setParserData(){
 	parser_data.DC = 0;
     	parser_data.IC = 100;
@@ -501,10 +511,12 @@ void setParserData(){
     	parser_data.Shead = create_label_list();
     	parser_data.Dhead = create_data_list();
 }
+/* free parser_data at the end. */
 void freeParserData(){
 	parser_data.file = NULL;
-	deleteList(parser_data.Shead);
-	deleteListData(parser_data.Dhead);
+	deleteList(parser_data.Shead); /*free label list*/
+	deleteListData(parser_data.Dhead);/*free data list*/
+	printf("123");
 	free(parser_data.nameOfFile);
 }
 
