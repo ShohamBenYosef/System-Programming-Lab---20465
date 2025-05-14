@@ -1,0 +1,25 @@
+Assembler in C (University Lab Project, Spring 2020)
+A two-pass assembler that translates a simplified assembly language into machine-code output files.
+
+parse.c	     Pass 1 – scans each line, tokenises it, and stores the results in a parser_data structure.
+commands.c	 Decodes instructions and their operands; invoked from parse.c.
+error.c	     Centralised error handling: common error messages and helper macros.
+file.c	     Opens input files, reads lines / tokens.
+list.c	     Linked-list utilities: node construction, insertion, deletion, traversal.
+translate.c	 Pass 2 – resolves addresses, fills in missing machine codes, writes all output files.
+utils.c	     Miscellaneous helpers and global constants.
+
+How the assembler works
+  Input – The program receives one or more base filenames via the command line and looks for a matching .as file for each.
+
+  Pass 1 (parse.c) –
+    Reads the assembly file line by line.
+    Identifies labels, directives, and instructions with help from commands.c.
+    Builds two linked lists (Line, Label) that hold all interim data (labels, machine-code skeletons, etc.).
+
+  Pass 2 (translate.c) –
+    Walks over the saved lists.
+    Resolves label addresses and completes every machine-code word.
+    Generates the required output files (object, entry, extern…) in the correct formats.
+
+The entire project is self-contained C code and was written as part of an undergraduate systems programming course.
